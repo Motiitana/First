@@ -1,0 +1,868 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Verde | Smart Park & Restaurant</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hero-bg {
+            background: linear-gradient(rgba(6, 78, 59, 0.75), rgba(4, 120, 87, 0.65)), url('https://placehold.co/1920x1080/064e3b/ffffff?text=Eco-Verde+Smart+Park') center/cover no-repeat;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased flex flex-col min-h-screen">
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-slate-700">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-message" class="text-sm font-medium">Action completed successfully!</span>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                    <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-md shadow-emerald-600/30">
+                        <i class="fa-solid fa-leaf text-2xl"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-bold tracking-tight text-slate-900">Eco-Verde</span>
+                        <span class="block text-xs font-semibold tracking-wider text-emerald-600 uppercase">Smart Park & Dine</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <button onclick="switchTab('home')" id="nav-home" class="nav-link font-medium text-emerald-600 transition-colors pb-1 border-b-2 border-emerald-600">Home</button>
+                    <button onclick="switchTab('attractions')" id="nav-attractions" class="nav-link font-medium text-slate-600 hover:text-emerald-600 transition-colors pb-1 border-b-2 border-transparent">Park Attractions</button>
+                    <button onclick="switchTab('parking')" id="nav-parking" class="nav-link font-medium text-slate-600 hover:text-emerald-600 transition-colors pb-1 border-b-2 border-transparent">Live Parking Spaces</button>
+                    <button onclick="switchTab('menu')" id="nav-menu" class="nav-link font-medium text-slate-600 hover:text-emerald-600 transition-colors pb-1 border-b-2 border-transparent">Restaurant Menu</button>
+                    <button onclick="switchTab('reservations')" id="nav-reservations" class="nav-link font-medium text-slate-600 hover:text-emerald-600 transition-colors pb-1 border-b-2 border-transparent">Bookings</button>
+                    <button onclick="switchTab('contact')" id="nav-contact" class="nav-link font-medium text-slate-600 hover:text-emerald-600 transition-colors pb-1 border-b-2 border-transparent">Contact / FAQ</button>
+                </div>
+
+                <!-- Right Actions: Cart & Mobile Menu Toggle -->
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleCart()" class="relative p-2.5 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-600 transition-all" title="Open Cart">
+                        <i class="fa-solid fa-bag-shopping text-lg"></i>
+                        <span id="cart-badge" class="absolute -top-1 -right-1 bg-emerald-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold shadow">0</span>
+                    </button>
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-2">
+            <button onclick="switchTab('home'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-600">Home</button>
+            <button onclick="switchTab('attractions'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-600">Park Attractions</button>
+            <button onclick="switchTab('parking'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-600">Live Parking Spaces</button>
+            <button onclick="switchTab('menu'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-600">Restaurant Menu</button>
+            <button onclick="switchTab('reservations'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-600">Bookings</button>
+            <button onclick="switchTab('contact'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-600">Contact / FAQ</button>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow">
+
+        <!-- TAB 1: HOME PAGE -->
+        <section id="tab-home" class="tab-content">
+            <!-- Hero Banner -->
+            <div class="hero-bg text-white py-24 px-4 sm:px-6 lg:px-8 text-center relative overflow-hidden">
+                <div class="max-w-4xl mx-auto relative z-10">
+                    <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/30 text-emerald-200 backdrop-blur-md mb-6 border border-emerald-400/30">
+                        <i class="fa-solid fa-sparkles mr-2"></i> Welcome to the Future of Urban Parks
+                    </span>
+                    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
+                        Experience Nature, Smart Living & Gourmet Dining
+                    </h1>
+                    <p class="text-lg sm:text-xl text-emerald-100 mb-10 max-w-2xl mx-auto font-light">
+                        Discover lush green botanical gardens, check real-time smart parking slots instantly, and order farm-to-table cuisine right from your device.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <button onclick="switchTab('menu')" class="px-8 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-2xl shadow-lg shadow-emerald-500/40 transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-utensils"></i>
+                            <span>Order Restaurant Food</span>
+                        </button>
+                        <button onclick="switchTab('parking')" class="px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-2xl backdrop-blur-md border border-white/20 transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-square-parking"></i>
+                            <span>Check Parking Spaces</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats Bar -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20 mb-16">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-100 flex items-center space-x-5">
+                        <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl font-bold">
+                            <i class="fa-solid fa-square-parking"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-slate-500">Available Parking</p>
+                            <h3 class="text-2xl font-bold text-slate-900"><span id="stat-parking">42</span> / 120 <span class="text-xs font-normal text-emerald-600">Spaces Open</span></h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-100 flex items-center space-x-5">
+                        <div class="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 text-2xl font-bold">
+                            <i class="fa-solid fa-utensils"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-slate-500">Restaurant Status</p>
+                            <h3 class="text-2xl font-bold text-slate-900">Open Now <span class="text-xs font-normal text-emerald-600">● 14 Tables Free</span></h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-100 flex items-center space-x-5">
+                        <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 text-2xl font-bold">
+                            <i class="fa-solid fa-person-walking"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-slate-500">Park Activity</p>
+                            <h3 class="text-2xl font-bold text-slate-900">340 Visitors <span class="text-xs font-normal text-blue-600">Pleasant Weather</span></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Highlights Section -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-4">Smart Eco-Park Experience</h2>
+                    <p class="text-slate-600">Designed with IoT sensors, clean solar pathways, and sustainable dining to give you a seamless recreation day.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:shadow-md transition-all group">
+                        <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 text-xl mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-tree"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Botanical Zones</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed mb-6">Explore over 50 species of flora, butterfly conservatories, and tranquil zen ponds with smart QR guides.</p>
+                        <button onclick="switchTab('attractions')" class="text-emerald-600 font-semibold text-sm flex items-center hover:underline">
+                            Explore Attractions <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:shadow-md transition-all group">
+                        <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 text-xl mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-car"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Real-Time Parking</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed mb-6">Never circle the lot again. Check slot availability instantly across all 3 parking bays before you arrive.</p>
+                        <button onclick="switchTab('parking')" class="text-emerald-600 font-semibold text-sm flex items-center hover:underline">
+                            View Live Map <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:shadow-md transition-all group">
+                        <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 text-xl mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-utensils"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Eco-Bistro & Café</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed mb-6">Savor organic dishes, wood-fired artisan pizzas, and refreshing smoothies made from our onsite greenhouse.</p>
+                        <button onclick="switchTab('menu')" class="text-emerald-600 font-semibold text-sm flex items-center hover:underline">
+                            Browse Menu <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: PARK ATTRACTIONS -->
+        <section id="tab-attractions" class="tab-content hidden py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+                <div>
+                    <h2 class="text-3xl font-extrabold text-slate-900">Park Attractions & Zones</h2>
+                    <p class="text-slate-600 mt-1">Discover nature trails, adventure spots, and relaxation zones.</p>
+                </div>
+                <div class="flex bg-slate-200 p-1 rounded-xl">
+                    <button onclick="filterAttractions('all')" id="filter-all" class="px-4 py-2 rounded-lg text-sm font-semibold bg-white text-slate-900 shadow-sm transition-all">All Zones</button>
+                    <button onclick="filterAttractions('nature')" id="filter-nature" class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all">Nature</button>
+                    <button onclick="filterAttractions('adventure')" id="filter-adventure" class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all">Adventure</button>
+                </div>
+            </div>
+
+            <!-- Attractions Grid -->
+            <div id="attractions-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Populated via JS -->
+            </div>
+        </section>
+
+        <!-- TAB 3: LIVE PARKING SPACES -->
+        <section id="tab-parking" class="tab-content hidden py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="mb-10 text-center max-w-2xl mx-auto">
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full">IoT Sensor Enabled</span>
+                <h2 class="text-3xl font-extrabold text-slate-900 mt-3">Live Parking Spaces Tracker</h2>
+                <p class="text-slate-600 mt-1">Monitor real-time space availability across our lots. Click any slot to simulate occupancy or reserve.</p>
+            </div>
+
+            <!-- Parking Lot Selector Tabs -->
+            <div class="flex justify-center mb-8 space-x-3">
+                <button onclick="switchParkingLot('A')" id="lot-btn-A" class="px-6 py-3 rounded-2xl font-bold bg-emerald-600 text-white shadow-md shadow-emerald-600/30 transition-all">Lot A (Main Entrance)</button>
+                <button onclick="switchParkingLot('B')" id="lot-btn-B" class="px-6 py-3 rounded-2xl font-bold bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 transition-all">Lot B (Lake Side)</button>
+                <button onclick="switchParkingLot('VIP')" id="lot-btn-VIP" class="px-6 py-3 rounded-2xl font-bold bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 transition-all">VIP / EV Charging</button>
+            </div>
+
+            <!-- Parking Grid Container -->
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 max-w-4xl mx-auto">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <h3 id="current-lot-title" class="text-xl font-bold text-slate-900">Parking Lot A (Main Entrance)</h3>
+                        <p class="text-sm text-slate-500">Total capacity: 40 slots | <span id="lot-free-count" class="text-emerald-600 font-semibold">24 available</span></p>
+                    </div>
+                    <div class="flex items-center space-x-4 mt-4 sm:mt-0 text-xs font-medium">
+                        <div class="flex items-center space-x-2"><span class="w-3.5 h-3.5 rounded-full bg-emerald-500 inline-block"></span><span>Available</span></div>
+                        <div class="flex items-center space-x-2"><span class="w-3.5 h-3.5 rounded-full bg-rose-500 inline-block"></span><span>Occupied</span></div>
+                    </div>
+                </div>
+
+                <!-- Slots Grid -->
+                <div id="parking-slots-grid" class="grid grid-cols-4 sm:grid-cols-8 gap-3">
+                    <!-- Populated via JS -->
+                </div>
+
+                <div class="mt-8 bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <p class="text-xs text-slate-600"><i class="fa-solid fa-circle-info text-emerald-600 mr-1"></i> Sensors update automatically in real-time. You can also reserve a slot in advance.</p>
+                    <button onclick="switchTab('reservations')" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs shadow transition-all">Book Parking Slot</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: RESTAURANT MENU -->
+        <section id="tab-menu" class="tab-content hidden py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+                <div>
+                    <h2 class="text-3xl font-extrabold text-slate-900">Eco-Bistro Restaurant Menu</h2>
+                    <p class="text-slate-600 mt-1">Fresh organic meals prepared with local ingredients. Order online for dine-in or park pickup.</p>
+                </div>
+                <!-- Categories -->
+                <div class="flex flex-wrap gap-2 bg-slate-200 p-1 rounded-xl">
+                    <button onclick="filterMenu('all')" id="menu-all" class="px-4 py-2 rounded-lg text-sm font-semibold bg-white text-slate-900 shadow-sm transition-all">All Items</button>
+                    <button onclick="filterMenu('starter')" id="menu-starter" class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all">Starters</button>
+                    <button onclick="filterMenu('main')" id="menu-main" class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all">Mains</button>
+                    <button onclick="filterMenu('dessert')" id="menu-dessert" class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all">Desserts</button>
+                    <button onclick="filterMenu('beverage')" id="menu-beverage" class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all">Beverages</button>
+                </div>
+            </div>
+
+            <!-- Menu Grid -->
+            <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Populated via JS -->
+            </div>
+        </section>
+
+        <!-- TAB 5: BOOKINGS (RESTAURANT TABLE & PARKING SLOT) -->
+        <section id="tab-reservations" class="tab-content hidden py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-extrabold text-slate-900">Smart Bookings & Reservations</h2>
+                <p class="text-slate-600 mt-1">Reserve a table at our restaurant or secure a dedicated parking spot in advance.</p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="flex justify-center mb-8 bg-slate-200 p-1.5 rounded-2xl max-w-md mx-auto">
+                <button onclick="switchBookingType('restaurant')" id="book-tab-rest" class="flex-1 py-3 rounded-xl font-bold text-sm bg-white text-slate-900 shadow-sm transition-all">Restaurant Table</button>
+                <button onclick="switchBookingType('parking')" id="book-tab-park" class="flex-1 py-3 rounded-xl font-bold text-sm text-slate-600 hover:text-slate-900 transition-all">Parking Slot</button>
+            </div>
+
+            <!-- Restaurant Booking Form -->
+            <div id="booking-form-rest" class="bg-white p-8 sm:p-10 rounded-3xl shadow-xl border border-slate-200">
+                <h3 class="text-xl font-bold text-slate-900 mb-6 flex items-center">
+                    <i class="fa-solid fa-utensils text-emerald-600 mr-3"></i> Book a Restaurant Table
+                </h3>
+                <form onsubmit="handleReservation(event, 'Restaurant')" class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
+                            <input type="text" required value="Moti Itana" placeholder="Moti Itana" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Phone Number</label>
+                            <input type="tel" required placeholder="+251" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Date</label>
+                            <input type="date" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Time Slot</label>
+                            <select class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option>12:00 PM - Lunch</option>
+                                <option>01:30 PM - Lunch</option>
+                                <option>06:00 PM - Dinner</option>
+                                <option>08:00 PM - Dinner</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Guests</label>
+                            <select class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option>2 People</option>
+                                <option>4 People</option>
+                                <option>6 People</option>
+                                <option>8+ People (Group)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Special Requests (Optional)</label>
+                        <textarea rows="3" placeholder="Dietary notes, seating preference..." class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                    </div>
+                    <button type="submit" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition-all">
+                        Confirm Table Reservation
+                    </button>
+                </form>
+            </div>
+
+            <!-- Parking Booking Form -->
+            <div id="booking-form-park" class="bg-white p-8 sm:p-10 rounded-3xl shadow-xl border border-slate-200 hidden">
+                <h3 class="text-xl font-bold text-slate-900 mb-6 flex items-center">
+                    <i class="fa-solid fa-square-parking text-emerald-600 mr-3"></i> Reserve a Parking Slot
+                </h3>
+                <form onsubmit="handleReservation(event, 'Parking')" class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
+                            <input type="text" required value="Moti Itana" placeholder="Moti Itana" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Phone Number</label>
+                            <input type="tel" required placeholder="+251" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Vehicle License Plate</label>
+                            <input type="text" required placeholder="ABC-1234" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Select Lot</label>
+                            <select class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option>Lot A (Main Entrance)</option>
+                                <option>Lot B (Lake Side)</option>
+                                <option>VIP / EV Charging Bay</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Date</label>
+                            <input type="date" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Arrival Time</label>
+                            <input type="time" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition-all">
+                        Confirm Parking Reservation
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- TAB 6: CONTACT / FAQ -->
+        <section id="tab-contact" class="tab-content hidden py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <h2 class="text-3xl font-extrabold text-slate-900">Contact Us & FAQs</h2>
+                <p class="text-slate-600 mt-1">Have questions about our park facilities, events, or restaurant bookings? Reach out to us.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Contact Form -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-900 mb-6">Send Us a Message</h3>
+                    <form onsubmit="handleContact(event)" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Your Name</label>
+                            <input type="text" required placeholder="Jane Smith" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+                            <input type="email" required placeholder="jane@example.com" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Message</label>
+                            <textarea rows="4" required placeholder="How can we help you today?" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                        </div>
+                        <button type="submit" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition-all">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Info & FAQ -->
+                <div class="space-y-8">
+                    <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 space-y-6">
+                        <h3 class="text-xl font-bold text-slate-900">Park Information</h3>
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0 mt-1">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-900">Address</h4>
+                                <p class="text-sm text-slate-600">100 Eco-Verde Parkway, Green Valley</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0 mt-1">
+                                <i class="fa-solid fa-clock"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-900">Operating Hours</h4>
+                                <p class="text-sm text-slate-600">Park: 6:00 AM – 10:00 PM Daily<br>Restaurant: 11:00 AM – 11:00 PM Daily</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0 mt-1">
+                                <i class="fa-solid fa-phone"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-900">Phone Support</h4>
+                                <p class="text-sm text-slate-600">+251 91 100 0000</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQs -->
+                    <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200">
+                        <h3 class="text-xl font-bold text-slate-900 mb-4">Frequently Asked Questions</h3>
+                        <div class="space-y-4 text-sm">
+                            <div>
+                                <h4 class="font-semibold text-slate-900">Is entry to the park free?</h4>
+                                <p class="text-slate-600 mt-1">Yes! General park admission and walking trails are completely free for all visitors.</p>
+                            </div>
+                            <hr class="border-slate-100">
+                            <div>
+                                <h4 class="font-semibold text-slate-900">How do EV charging stations work?</h4>
+                                <p class="text-slate-600 mt-1">Select "VIP / EV Charging" in our parking tracker and plug in upon arrival. Charging is free with restaurant orders over $30.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Slide-out Shopping Cart Drawer -->
+    <div id="cart-drawer" class="fixed inset-0 z-50 overflow-hidden hidden">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" onclick="toggleCart()"></div>
+        <div class="absolute inset-y-0 right-0 max-w-full flex pl-10">
+            <div class="w-screen max-w-md bg-white shadow-2xl flex flex-col">
+                <!-- Cart Header -->
+                <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-slate-900 flex items-center">
+                        <i class="fa-solid fa-bag-shopping text-emerald-600 mr-2"></i> Your Food Order
+                    </h3>
+                    <button onclick="toggleCart()" class="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+                <!-- Cart Items List -->
+                <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 space-y-4">
+                    <!-- Populated via JS -->
+                </div>
+                <!-- Cart Footer -->
+                <div class="p-6 border-t border-slate-200 bg-slate-50 space-y-4">
+                    <div class="flex justify-between text-base font-medium text-slate-900">
+                        <p>Subtotal</p>
+                        <p id="cart-subtotal">$0.00</p>
+                    </div>
+                    <div class="flex justify-between text-xs text-slate-500">
+                        <p>Taxes & Eco-Fee (8%)</p>
+                        <p id="cart-tax">$0.00</p>
+                    </div>
+                    <div class="flex justify-between text-lg font-bold text-slate-900 pt-2 border-t border-slate-200">
+                        <p>Total</p>
+                        <p id="cart-total" class="text-emerald-600">$0.00</p>
+                    </div>
+                    <button onclick="checkoutOrder()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center space-x-2">
+                        <span>Checkout & Send to Kitchen</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-12 mt-16 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+                <div>
+                    <span class="text-lg font-bold">Eco-Verde Smart Park & Dine</span>
+                    <p class="text-xs text-slate-400">Sustainable recreation and dining for everyone.</p>
+                </div>
+            </div>
+            <p class="text-xs text-slate-500">© 2026 Eco-Verde Park. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- DATA STORE ---
+        const attractionsData = [
+            { id: 1, title: 'Botanical Glasshouse', category: 'nature', desc: 'Over 200 rare tropical plant species and butterfly pavilion.', hours: '8:00 AM - 6:00 PM', image: 'https://placehold.co/600x400/064e3b/ffffff?text=Botanical+Glasshouse' },
+            { id: 2, title: 'Zen Meditation Pond', category: 'nature', desc: 'Peaceful water gardens surrounded by weeping willows and stone benches.', hours: '6:00 AM - 10:00 PM', image: 'https://placehold.co/600x400/047857/ffffff?text=Zen+Pond' },
+            { id: 3, title: 'Solar Canopy Trail', category: 'adventure', desc: 'Elevated wooden walkway powered entirely by integrated solar panels.', hours: '7:00 AM - 8:00 PM', image: 'https://placehold.co/600x400/10b981/ffffff?text=Solar+Canopy' },
+            { id: 4, title: 'Eco-Playground & Splash Park', category: 'adventure', desc: 'Interactive children playground built with recycled timber and safe rubber flooring.', hours: '9:00 AM - 7:00 PM', image: 'https://placehold.co/600x400/059669/ffffff?text=Eco-Playground' },
+            { id: 5, title: 'Butterfly Sanctuary', category: 'nature', desc: 'An immersive dome experience featuring hundreds of free-flying native butterflies.', hours: '9:30 AM - 5:30 PM', image: 'https://placehold.co/600x400/047857/ffffff?text=Butterfly+Sanctuary' },
+            { id: 6, title: 'Adventure Rock Climbing Wall', category: 'adventure', desc: 'Eco-friendly artificial climbing boulders suitable for all skill levels.', hours: '10:00 AM - 8:00 PM', image: 'https://placehold.co/600x400/064e3b/ffffff?text=Rock+Climbing' }
+        ];
+
+        const menuData = [
+            { id: 101, title: 'Greenhouse Caesar Salad', category: 'starter', price: 12.50, desc: 'Crisp romaine, organic parmesan crisps, house caesar dressing, garlic croutons.', image: 'https://placehold.co/600x400/10b981/ffffff?text=Caesar+Salad' },
+            { id: 102, title: 'Truffle Mushroom Bruschetta', category: 'starter', price: 14.00, desc: 'Wild forest mushrooms, truffle oil, goat cheese spread on artisan sourdough.', image: 'https://placehold.co/600x400/059669/ffffff?text=Bruschetta' },
+            { id: 103, title: 'Wood-Fired Garden Margherita Pizza', category: 'main', price: 18.50, desc: 'San Marzano tomatoes, fresh fior di latte mozzarella, basil leaves, extra virgin olive oil.', image: 'https://placehold.co/600x400/047857/ffffff?text=Margherita+Pizza' },
+            { id: 104, title: 'Organic Herb Grilled Chicken Bowl', category: 'main', price: 21.00, desc: 'Free-range chicken breast, quinoa, roasted sweet potatoes, avocado, chimichurri.', image: 'https://placehold.co/600x400/064e3b/ffffff?text=Chicken+Bowl' },
+            { id: 105, title: 'Wild Berry Matcha Cheesecake', category: 'dessert', price: 9.50, desc: 'Ceremonial grade matcha cheesecake with a fresh wild berry compote crust.', image: 'https://placehold.co/600x400/10b981/ffffff?text=Matcha+Cheesecake' },
+            { id: 106, title: 'Vegan Dark Chocolate Lava Cake', category: 'dessert', price: 10.00, desc: 'Warm molten dark chocolate cake served with dairy-free vanilla bean gelato.', image: 'https://placehold.co/600x400/059669/ffffff?text=Lava+Cake' },
+            { id: 107, title: 'Fresh Mint Cucumber Refresher', category: 'beverage', price: 6.00, desc: 'Cold-pressed cucumber, freshly minted leaves, lime squeeze, sparkling spring water.', image: 'https://placehold.co/600x400/047857/ffffff?text=Cucumber+Refresher' },
+            { id: 108, title: 'Artisanal Iced Matcha Latte', category: 'beverage', price: 7.50, desc: 'Organic Japanese matcha layered with oat milk and organic agave syrup.', image: 'https://placehold.co/600x400/064e3b/ffffff?text=Matcha+Latte' }
+        ];
+
+        // Parking state for lots A, B, VIP
+        let parkingState = {
+            'A': Array(32).fill(0).map(() => Math.random() > 0.4 ? 0 : 1), // 0: Available, 1: Occupied
+            'B': Array(24).fill(0).map(() => Math.random() > 0.5 ? 0 : 1),
+            'VIP': Array(12).fill(0).map(() => Math.random() > 0.3 ? 0 : 1)
+        };
+        let currentLot = 'A';
+
+        // Cart State
+        let cart = [];
+
+        // --- NAVIGATION & TABS ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-link').forEach(el => {
+                el.classList.remove('text-emerald-600', 'border-emerald-600');
+                el.classList.add('text-slate-600', 'border-transparent');
+            });
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.remove('text-slate-600', 'border-transparent');
+                activeNav.classList.add('text-emerald-600', 'border-emerald-600');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // --- TOAST NOTIFICATION ---
+        function showToast(message, icon = 'fa-circle-check') {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-message');
+            const iconEl = document.getElementById('toast-icon');
+
+            msgEl.textContent = message;
+            iconEl.className = `fa-solid ${icon} text-emerald-400 text-lg`;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+
+        // --- RENDER ATTRACTIONS ---
+        function renderAttractions(filter = 'all') {
+            const grid = document.getElementById('attractions-grid');
+            grid.innerHTML = '';
+
+            const filtered = filter === 'all' ? attractionsData : attractionsData.filter(item => item.category === filter);
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-md transition-all flex flex-col';
+                card.innerHTML = `
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                        <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-slate-900 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">${item.category}</span>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">${item.title}</h3>
+                        <p class="text-slate-600 text-sm mb-4 flex-grow">${item.desc}</p>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                            <span><i class="fa-regular fa-clock text-emerald-600 mr-1"></i> ${item.hours}</span>
+                            <button onclick="showToast('Navigating to ${item.title} map!')" class="text-emerald-600 hover:underline font-semibold">View on Map</button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterAttractions(category) {
+            ['all', 'nature', 'adventure'].forEach(cat => {
+                const btn = document.getElementById(`filter-${cat}`);
+                if (cat === category) {
+                    btn.className = 'px-4 py-2 rounded-lg text-sm font-semibold bg-white text-slate-900 shadow-sm transition-all';
+                } else {
+                    btn.className = 'px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all';
+                }
+            });
+            renderAttractions(category);
+        }
+
+        // --- RENDER PARKING LOTS ---
+        function switchParkingLot(lotKey) {
+            currentLot = lotKey;
+            ['A', 'B', 'VIP'].forEach(key => {
+                const btn = document.getElementById(`lot-btn-${key}`);
+                if (key === lotKey) {
+                    btn.className = 'px-6 py-3 rounded-2xl font-bold bg-emerald-600 text-white shadow-md shadow-emerald-600/30 transition-all';
+                } else {
+                    btn.className = 'px-6 py-3 rounded-2xl font-bold bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 transition-all';
+                }
+            });
+
+            const titles = { 'A': 'Parking Lot A (Main Entrance)', 'B': 'Parking Lot B (Lake Side)', 'VIP': 'VIP / EV Charging Bay' };
+            document.getElementById('current-lot-title').textContent = titles[lotKey];
+            renderParkingGrid();
+        }
+
+        function renderParkingGrid() {
+            const grid = document.getElementById('parking-slots-grid');
+            grid.innerHTML = '';
+
+            const slots = parkingState[currentLot];
+            let availableCount = 0;
+
+            slots.forEach((status, index) => {
+                if (status === 0) availableCount++;
+                const slotDiv = document.createElement('div');
+                
+                let bgClass = status === 0 ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/20' : 'bg-rose-500 text-white opacity-80';
+                
+                slotDiv.className = `p-4 rounded-2xl shadow-sm flex flex-col items-center justify-center cursor-pointer transition-all ${bgClass}`;
+                slotDiv.innerHTML = `
+                    <i class="fa-solid fa-car text-lg mb-1"></i>
+                    <span class="text-xs font-bold">${currentLot}-${index + 1}</span>
+                    <span class="text-[10px] uppercase font-medium">${status === 0 ? 'Open' : 'Full'}</span>
+                `;
+                slotDiv.onclick = () => toggleSlotStatus(currentLot, index);
+                grid.appendChild(slotDiv);
+            });
+
+            document.getElementById('lot-free-count').textContent = `${availableCount} available`;
+            document.getElementById('stat-parking').textContent = availableCount + 18;
+        }
+
+        function toggleSlotStatus(lot, index) {
+            parkingState[lot][index] = parkingState[lot][index] === 0 ? 1 : 0;
+            renderParkingGrid();
+            showToast(`Slot ${lot}-${index + 1} status updated!`);
+        }
+
+        // --- RENDER RESTAURANT MENU ---
+        function renderMenu(category = 'all') {
+            const grid = document.getElementById('menu-grid');
+            grid.innerHTML = '';
+
+            const filtered = category === 'all' ? menuData : menuData.filter(item => item.category === category);
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-md transition-all flex flex-col';
+                card.innerHTML = `
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                        <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-emerald-700 font-bold text-xs px-3 py-1 rounded-full">$${item.price.toFixed(2)}</span>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-1">${item.category}</span>
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">${item.title}</h3>
+                        <p class="text-slate-600 text-sm mb-6 flex-grow">${item.desc}</p>
+                        <button onclick="addToCart(${item.id})" class="w-full py-3 bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white font-semibold rounded-xl text-sm transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            <span>Add to Order</span>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterMenu(category) {
+            ['all', 'starter', 'main', 'dessert', 'beverage'].forEach(cat => {
+                const btn = document.getElementById(`menu-${cat}`);
+                if (cat === category) {
+                    btn.className = 'px-4 py-2 rounded-lg text-sm font-semibold bg-white text-slate-900 shadow-sm transition-all';
+                } else {
+                    btn.className = 'px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all';
+                }
+            });
+            renderMenu(category);
+        }
+
+        // --- CART & ORDERING ---
+        function addToCart(itemId) {
+            const item = menuData.find(i => i.id === itemId);
+            const existing = cart.find(i => i.id === itemId);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ ...item, qty: 1 });
+            }
+            updateCartUI();
+            showToast(`Added ${item.title} to cart!`);
+        }
+
+        function updateCartUI() {
+            const badge = document.getElementById('cart-badge');
+            const container = document.getElementById('cart-items-container');
+            
+            const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
+            badge.textContent = totalQty;
+
+            container.innerHTML = '';
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-400">
+                        <i class="fa-solid fa-basket-shopping text-4xl mb-3"></i>
+                        <p class="text-sm font-medium">Your cart is currently empty.</p>
+                    </div>
+                `;
+                document.getElementById('cart-subtotal').textContent = '$0.00';
+                document.getElementById('cart-tax').textContent = '$0.00';
+                document.getElementById('cart-total').textContent = '$0.00';
+                return;
+            }
+
+            let subtotal = 0;
+            cart.forEach((item, index) => {
+                subtotal += item.price * item.qty;
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100';
+                div.innerHTML = `
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-sm">${item.title}</h4>
+                        <p class="text-xs text-emerald-600 font-semibold">$${item.price.toFixed(2)} x ${item.qty}</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="updateQty(${index}, -1)" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-700 flex items-center justify-center font-bold hover:bg-slate-100">-</button>
+                        <span class="text-sm font-bold w-6 text-center">${item.qty}</span>
+                        <button onclick="updateQty(${index}, 1)" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-700 flex items-center justify-center font-bold hover:bg-slate-100">+</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            const tax = subtotal * 0.08;
+            const total = subtotal + tax;
+
+            document.getElementById('cart-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('cart-tax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('cart-total').textContent = `$${total.toFixed(2)}`;
+        }
+
+        function updateQty(index, change) {
+            cart[index].qty += change;
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+            updateCartUI();
+        }
+
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            drawer.classList.toggle('hidden');
+        }
+
+        function checkoutOrder() {
+            if (cart.length === 0) {
+                showToast('Your cart is empty!', 'fa-circle-exclamation');
+                return;
+            }
+            toggleCart();
+            cart = [];
+            updateCartUI();
+            showToast('Order placed successfully! Kitchen is preparing your meal.');
+        }
+
+        // --- BOOKINGS ---
+        function switchBookingType(type) {
+            const restBtn = document.getElementById('book-tab-rest');
+            const parkBtn = document.getElementById('book-tab-park');
+            const restForm = document.getElementById('booking-form-rest');
+            const parkForm = document.getElementById('booking-form-park');
+
+            if (type === 'restaurant') {
+                restBtn.className = 'flex-1 py-3 rounded-xl font-bold text-sm bg-white text-slate-900 shadow-sm transition-all';
+                parkBtn.className = 'flex-1 py-3 rounded-xl font-bold text-sm text-slate-600 hover:text-slate-900 transition-all';
+                restForm.classList.remove('hidden');
+                parkForm.classList.add('hidden');
+            } else {
+                parkBtn.className = 'flex-1 py-3 rounded-xl font-bold text-sm bg-white text-slate-900 shadow-sm transition-all';
+                restBtn.className = 'flex-1 py-3 rounded-xl font-bold text-sm text-slate-600 hover:text-slate-900 transition-all';
+                parkForm.classList.remove('hidden');
+                restForm.classList.add('hidden');
+            }
+        }
+
+        function handleReservation(event, type) {
+            event.preventDefault();
+            event.target.reset();
+            showToast(`${type} reservation confirmed successfully!`);
+        }
+
+        function handleContact(event) {
+            event.preventDefault();
+            event.target.reset();
+            showToast('Message sent successfully! We will get back to you soon.');
+        }
+
+        // --- INITIALIZATION ---
+        window.onload = function () {
+            renderAttractions('all');
+            renderParkingGrid();
+            renderMenu('all');
+
+            setInterval(() => {
+                const lots = ['A', 'B', 'VIP'];
+                const randomLot = lots[Math.floor(Math.random() * lots.length)];
+                const randomIndex = Math.floor(Math.random() * parkingState[randomLot].length);
+                parkingState[randomLot][randomIndex] = Math.random() > 0.5 ? 0 : 1;
+                if (randomLot === currentLot) {
+                    renderParkingGrid();
+                }
+            }, 6000);
+        };
+    </script>
+</body>
+</html>
